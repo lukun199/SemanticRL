@@ -1,2 +1,5 @@
 # SemanticRL
-Code for paper- SemanticRL: Bridging the gap between semantic similarity and semantic communication
+
+[Paper link](https://arxiv.org/abs/2108.12121)
+
+Codes will be available when the paper is accepted.  -2021/08/30
