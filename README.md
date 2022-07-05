@@ -54,21 +54,6 @@ python Trainng_SemanticRL.py --training_config ./config/config_AWGN_RL_SCSIU.yam
 Besides `LSTM` backbone, we provide a `Transformer` backbone to facilitate further researches. You can rewrite methods in `model.py` to customize your own framework. SemanticRL is model-agnostic. You may also design any semantic similarity metric to build a customed communication system.
 
 
-## Timeline
-
-First submission, to JSAC-Series on Machine Learning for Communications and Networks (2021.10.26)
-https://arxiv.org/abs/2108.12121v1
-Rating 5,3,5 (higher the better)
--Rejected
-
-
-Revised, submitted to JSAC-Special Issue on Beyond Transmitting Bits (2022.03.31)
-https://arxiv.org/abs/2108.12121v2
-Rating 7,3,8,6 (higher the better)
--Rejected
-
-I feel deeply appreciated that you arrived here. Inspite of few negative comments, the authors are greatly encouraged by the dedicated reviewers, along with their constructive suggestions which keep improving this work. 
-
 ## Thanks
 
 This repository is largely inspired by [ruotianluo's excellent captioning work](https://github.com/ruotianluo/ImageCaptioning.pytorch).
