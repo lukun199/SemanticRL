@@ -1,5 +1,5 @@
 matplotlib==3.5.2
-numpy==1.21.5
+numpy==1.21.6
 PyYAML==6.0
 six==1.16.0
 torch==1.8.0

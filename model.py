@@ -112,8 +112,12 @@ class Decoder_Meta():
 
     def sample_max_batch(self, input_features, x_mask, decoding_constraint=1):
         self.eval()
-        max_seq_len = input_features.shape[-1] // self.channel_dim
-        input_features = self.from_channel_emb(input_features.view(input_features.shape[0], max_seq_len, -1))
+
+        if x_mask:
+            max_seq_len = input_features.shape[-1] // self.channel_dim
+            input_features = self.from_channel_emb(input_features.view(input_features.shape[0], max_seq_len, -1))
+        else:
+            max_seq_len = 21
 
         batch_size = input_features.size(0)
         seq = input_features.new_zeros((batch_size, max_seq_len), dtype=torch.long)
