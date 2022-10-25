@@ -23,15 +23,16 @@ def get_model(name):
 
 class Decoder_Meta():
 
+    # Note, `self` methods/attributes should be defined in child classes.
     def forward_rl(self, input_features, sample_max=None, multiple_sample=5, x_mask=None):
 
-        max_seq_len = input_features.shape[-1]//self.channel_dim
-
         if x_mask is not None:  # i.e., backbone is Transformer
+            max_seq_len = input_features.shape[-1] // self.channel_dim
             input_features = smaple_n_times(multiple_sample, input_features.view(input_features.shape[0], max_seq_len, -1))
             input_features = self.from_channel_emb(input_features)
             x_mask = smaple_n_times(multiple_sample, x_mask)
         else: # LSTM
+            max_seq_len = 21  # we set the max sentence length to 20, plus an EOS token. You can adjust this value.
             input_features = smaple_n_times(multiple_sample, input_features)
 
         batch_size = input_features.size(0)
@@ -62,53 +63,6 @@ class Decoder_Meta():
                 break
 
         return seq, seq_logprobs, seq_masks
-
-    def sample_onebatch(self, input_features, dict_rev, x_mask, beam_size=3, decoding_constraint=1):
-        self.eval()
-        max_seq_len = input_features.shape[-1] // self.channel_dim
-        input_features = self.from_channel_emb(input_features.view(input_features.shape[0], max_seq_len, -1))
-
-        input_features = input_features[0]
-        x_mask = x_mask[0]
-
-        state = self.init_hidden(input_features)
-        candidates = [BeamCandidate(state, 0., [], self.sos_id, [])]
-        for t in range(max_seq_len):
-            tmp_candidates = []
-            end_flag = True
-            for candidate in candidates:
-                state, log_prob_sum, log_prob_seq, last_word_id, word_id_seq = candidate
-                if t > 0 and last_word_id == self.eos_id:
-                    tmp_candidates.append(candidate)
-                else:
-                    end_flag = False
-                    it = input_features.new_tensor([last_word_id], dtype=torch.long)
-                    logprobs, state = self._forward_step(it, state, input_features, x_mask)  # 1*vocab_size
-                    logprobs = logprobs.squeeze(0)  # vocab_size
-                    if self.pad_id != self.eos_id:
-                        logprobs[self.pad_id] += float('-inf')  # do not generate <PAD>, <SOS> and <UNK>
-                        logprobs[self.sos_id] += float('-inf')
-                        logprobs[self.unk_id] += float('-inf')
-                    if decoding_constraint:  # do not generate last step word
-                        logprobs[last_word_id] += float('-inf')
-
-                    output_sorted, index_sorted = torch.sort(logprobs, descending=True)
-                    for k in range(beam_size):
-                        log_prob, word_id = output_sorted[k], index_sorted[k]  # tensor, tensor
-                        log_prob = float(log_prob)
-                        word_id = int(word_id)
-                        tmp_candidates.append(BeamCandidate(state, log_prob_sum + log_prob,
-                                                            log_prob_seq + [log_prob],
-                                                            word_id, word_id_seq + [word_id]))
-            candidates = sorted(tmp_candidates, key=lambda x: x.log_prob_sum, reverse=True)[:beam_size]
-            if end_flag:
-                break
-
-        # captions, scores
-        captions = [' '.join([dict_rev[idx] for idx in candidate.word_id_seq if idx != self.eos_id])
-                    for candidate in candidates]
-        scores = [candidate.log_prob_sum for candidate in candidates]
-        return captions, scores
 
     def sample_max_batch(self, input_features, x_mask, decoding_constraint=1):
         self.eval()
