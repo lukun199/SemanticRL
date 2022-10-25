@@ -31,6 +31,7 @@ class Dataset_sentence(Dataset):
                          for idx, x in enumerate(tmp['sent_str']) if idx%5==0]  # 20% of data
         self.data_len = np.array(list(map(lambda s: sum(s != 0), self.data_num)))
 
+        with open('train_dict.pkl','wb') as f: pickle.dump(self.dict, f)
         print('[*]------------vocabulary size is:----', self.get_dict_len())
         print('[*]------------sentences size is:----', self.__len__())
         #print('[*]------------test sentences size is:----', len(self.test_data_num))
