@@ -172,6 +172,8 @@ def train(encoder, decoder, device, train_loader, optimizer, epoch):
                 fns, train_sents if 'LSTM' in args.backbone else train_sents[:,1:], 1, 2, reward_scorer)
             loss = crit('rl', sample_logprobs, seq_masks, advantage)
 
+        # When using Transformer backbone, it is recommended to set args.set teacher_forcing >0, and combine CE and RL loss to 
+        # get the best performance. i.e., `loss = loss_ce*lambda + loss_rl` where lambda can be, say, 0.2.
         loss.backward()
         clip_gradient(optimizer, 0.1)
         optimizer.step()
